@@ -23,7 +23,7 @@ import random
 
 FloatFunc = Callable[[float], float]
 # The number of half-steps away from A, used
-# to calculate frequences relative to A4 = 440 Hz
+# to calculate frequencies relative to A4 = 440 Hz
 NOTE_TO_STEPS = {
     'B': 2,
     'A': 0,
@@ -39,11 +39,11 @@ TWO_PI = 2*pi
 
 @cache
 def note_to_frequency(note: str) -> float:
-    '''
+    """
     Calculates the frequency of a given note.
     The note is specified in a string like "A4".
     Sharp or flat specified by a # or b are the end, e.g. "B4b"
-    '''
+    """
     if note.endswith('b'):
         offset = -1
     elif note.endswith('#'):
@@ -69,21 +69,20 @@ class WaveTable:
     def sample(self, count: int, freq: float, freq_sample: float, volume: float) -> list[float]:
         table = self.table
         size = len(table)
-        mod_mask = size -1
         i = 0
         result = [0.0]*count
         inc = freq*size/freq_sample
         for sample in range(count):
-            x0i = int(i) % size
-            x1i = (x0i + 1) % size
-            result[sample] = volume*((i-x0i)*table[x1i] + fmod(x1i - i + size, size)*table[x0i])
+            x0i = int(i)
+            x1i = x0i + 1
+            result[sample] = volume*((i-x0i)*table[x1i % size] + (x1i - i)*table[x0i])
             i = fmod(i + inc, size)
         return result
 
 
 def demo():
     tempo = 120  # beats per minute
-    track = [ # to do multiple tracks you can sum the samples of each track
+    track = [  # to do multiple tracks you can sum the samples of each track
         ('C4', 1),
         ('C4', 1),
         ('G4', 1),
@@ -137,7 +136,6 @@ def demo():
     volume = 2000.0
     filename = 'twinkle-{}-table.wav'
 
-
     audible_beat_percent = 0.9  # add some silence at the end of a beat to hear articulation of each note
     sin_samples = []
     square_samples = []
@@ -151,7 +149,6 @@ def demo():
         sin_samples.extend(repeat(0.0, silent_samples))
         square_samples.extend(square_table.sample(audible_samples, f, sample_rate, volume))
         square_samples.extend(repeat(0.0, silent_samples))
-
 
     # adding some white noise to the samples
     noise_volume = 100.0
